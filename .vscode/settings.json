@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.ipp": "cpp",
+        "*.inc": "cpp",
+        "type_traits": "cpp",
+        "variant": "cpp",
+        "__locale": "cpp"
+    },
+    "python.pythonPath": "/usr/local/opt/python/bin/python3.6"
+}
