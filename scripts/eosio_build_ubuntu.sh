@@ -4,7 +4,7 @@
 
 	MEM_MEG=$( free -m | sed -n 2p | tr -s ' ' | cut -d\  -f2 || cut -d' ' -f2 )
 	CPU_SPEED=$( lscpu | grep -m1 "MHz" | tr -s ' ' | cut -d\  -f3 || cut -d' ' -f3 | cut -d'.' -f1 )
-	CPU_CORE=$( lscpu | grep "^CPU(s)" | tr -s ' ' | cut -d\  -f2 || cut -d' ' -f2 )
+	CPU_CORE=$( lscpu -pCPU | grep -v "#" | wc -l )
 
 	MEM_GIG=$(( ((MEM_MEG / 1000) / 2) ))
 	JOBS=$(( MEM_GIG > CPU_CORE ? CPU_CORE : MEM_GIG ))
@@ -24,11 +24,11 @@
 	printf "\\tDisk space total: %sG\\n" "${DISK_TOTAL%.*}"
 	printf "\\tDisk space available: %sG\\n" "${DISK_AVAIL%.*}"
 
-	if [ "${MEM_MEG}" -lt 7000 ]; then
-		printf "\\tYour system must have 7 or more Gigabytes of physical memory installed.\\n"
-		printf "\\tExiting now.\\n"
-		exit 1
-	fi
+	#if [ "${MEM_MEG}" -lt 2000 ]; then
+	#	printf "\\tYour system must have 7 or more Gigabytes of physical memory installed.\\n"
+	#	printf "\\tExiting now.\\n"
+	#	exit 1
+	#fi
 
 	case "${OS_NAME}" in
 		"Linux Mint")

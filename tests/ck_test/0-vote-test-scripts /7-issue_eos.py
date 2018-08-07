@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import os
 import time
@@ -22,7 +22,7 @@ for line in open('bp_keys'):
 amount = "20000.0000 EOS"
 for bpaccount in bpaccList:
     f('cleos transfer eosio '+ bpaccount +''' "'''+ amount+'''"''')
-    time.sleep(0.2)
+    time.sleep(0.01)
 
 
 
@@ -36,7 +36,7 @@ for line1 in open('vo_keys'):
 
 # transfer EOT to voters account from eosio
 
-amount = "20000000.0000 EOS"
+amount = "10000000.0000 EOS"
 for voaccount in voaccList:
     f('cleos transfer eosio '+ voaccount +''' "'''+ amount+'''"''')
-    time.sleep(0.2)
+    time.sleep(0.01)

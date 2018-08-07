@@ -47,32 +47,23 @@ struct async_result_visitor : public fc::visitor<std::string> {
           } \
        }}
 
-//异步调用宏
-#define CALL_ASYNC(api_name, api_handle, api_namespace, call_name, call_result, http_response_code)                          \
-{       \
-      std::string("/v1/" #api_name "/" #call_name),                                                                    \
-                [this, api_handle](string, string body, url_response_callback cb) mutable {                                  \
-                      if (body.empty())                                                                                      \
-                            body = "{}";                                                                                     \
-                      api_handle.call_name(fc::json::from_string(body).as<api_namespace::call_name##_params>(),              \
-                                           [cb, body](const fc::static_variant<fc::exception_ptr, call_result> &result) {    \
-                                                 if (result.contains<fc::exception_ptr>())                                   \
-                                                 {                                                                           \
-                                                       try                                                                   \
-                                                       {                                                                     \
-                                                             result.get<fc::exception_ptr>()->dynamic_rethrow_exception();   \
-                                                       }                                                                     \
-                                                       catch (...)                                                           \
-                                                       {                                                                     \
-                                                             http_plugin::handle_exception(#api_name, #call_name, body, cb); \
-                                                       }                                                                     \
-                                                 }                                                                           \
-                                                 else                                                                        \
-                                                 {                                                                           \
-                                                       cb(http_response_code, result.visit(async_result_visitor()));         \
-                                                 }                                                                           \
-                                           });                                                                               \
-                }                                                                                                            \
+#define CALL_ASYNC(api_name, api_handle, api_namespace, call_name, call_result, http_response_code) \
+{std::string("/v1/" #api_name "/" #call_name), \
+   [this, api_handle](string, string body, url_response_callback cb) mutable { \
+      if (body.empty()) body = "{}"; \
+      api_handle.call_name(fc::json::from_string(body).as<api_namespace::call_name ## _params>(),\
+         [cb, body](const fc::static_variant<fc::exception_ptr, call_result>& result){\
+            if (result.contains<fc::exception_ptr>()) {\
+               try {\
+                  result.get<fc::exception_ptr>()->dynamic_rethrow_exception();\
+               } catch (...) {\
+                  http_plugin::handle_exception(#api_name, #call_name, body, cb);\
+               }\
+            } else {\
+               cb(http_response_code, result.visit(async_result_visitor()));\
+            }\
+         });\
+   }\
 }
 
 #define CHAIN_RO_CALL(call_name, http_response_code) CALL(chain, ro_api, chain_apis::read_only, call_name, http_response_code)

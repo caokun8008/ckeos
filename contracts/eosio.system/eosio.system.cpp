@@ -1,7 +1,7 @@
 #include "eosio.system.hpp"
 #include <eosiolib/dispatcher.hpp>
 
-#include "reward_participants.cpp"
+#include "producer_pay.cpp"
 #include "delegate_bandwidth.cpp"
 #include "voting.cpp"
 #include "exchange_state.cpp"

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import os
 import time
@@ -26,5 +26,5 @@ for voter in voterList:
     f('cleos system delegatebw '+ voter +' ' + voter+''' "'''+amount + ''' EOS" "'''+amount + ''' EOS"''')
     n+=10000
     print("voter: "+voter+ " stake token ok!")
-    time.sleep(0.2)
+    time.sleep(0.02)
 

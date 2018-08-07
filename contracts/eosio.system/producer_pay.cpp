@@ -4,16 +4,16 @@
 
 namespace eosiosystem {
 
-   const int64_t  min_activated_stake   = 050'000'000'0000; // 5%
+   const int64_t  min_activated_stake   = 150'000'000'0000; // 5%
    const double   continuous_rate       = 0.04879;          // 5% annual rate
    const double   reward_rate           = 0.60;
    const double   reward_perblock_rate  = 0.20;             // 25%
    const double   reward_standby_rate   = 0.40;             // 50%
    const double   reward_user_vote_rate = 0.40;             // 25%
-   const uint32_t blocks_per_year       = 52*7*24*2*3600;   // half seconds per year
+   const uint32_t blocks_per_year       = 52*7*24*3600;   // half seconds per year
    const uint32_t seconds_per_year      = 52*7*24*3600;
-   const uint32_t blocks_per_day        = 2 * 24 * 3600;
-   const uint32_t blocks_per_hour       = 2 * 3600;
+   const uint32_t blocks_per_day        = 24 * 3600;
+   const uint32_t blocks_per_hour       = 3600;
    const uint32_t blocks_per_minute     = 60;
    const uint64_t useconds_per_day      = 24 * 3600 * uint64_t(1000000);
    const uint64_t useconds_per_year     = seconds_per_year*1000000ll;

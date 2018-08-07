@@ -451,60 +451,42 @@ namespace eosio {
    }
 
    void http_plugin::handle_exception( const char *api_name, const char *call_name, const string& body, url_response_callback cb ) {
-
-         std::cout << "api_name = " << api_name << ",\n"<< "call_name = " << call_name << ",\n"<< "body = " << body << ",\n" << std::endl;
-         try
-         {
-               try
-               {
-                     throw;
-               }
-               catch (chain::unsatisfied_authorization &e)
-               {
-                     error_results results{401, "UnAuthorized", error_results::error_info(e, verbose_http_errors)};
-                     cb(401, fc::json::to_string(results));
-               }
-               catch (chain::tx_duplicate &e)
-               {
-                     error_results results{409, "Conflict", error_results::error_info(e, verbose_http_errors)};
-                     cb(409, fc::json::to_string(results));
-               }
-               catch (chain::transaction_exception &e)
-               {
-                     error_results results{400, "Bad Request", error_results::error_info(e, verbose_http_errors)};
-                     cb(400, fc::json::to_string(results));
-               }
-               catch (fc::eof_exception &e)
-               {
-                     error_results results{400, "Bad Request", error_results::error_info(e, verbose_http_errors)};
-                     cb(400, fc::json::to_string(results));
-                     elog("Unable to parse arguments to ${api}.${call}", ("api", api_name)("call", call_name));
-                     dlog("Bad arguments: ${args}", ("args", body));
-               }
-               catch (fc::exception &e)
-               {
-                     error_results results{500, "Internal Service Error", error_results::error_info(e, verbose_http_errors)};
-                     cb(500, fc::json::to_string(results));
-                     elog("FC Exception encountered while processing ${api}.${call}",
-                          ("api", api_name)("call", call_name));
-                     dlog("Exception Details: ${e}", ("e", e.to_detail_string()));
-               }
-               catch (std::exception &e)
-               {
-                     error_results results{500, "Internal Service Error", error_results::error_info(fc::exception(FC_LOG_MESSAGE(error, e.what())), verbose_http_errors)};
-                     cb(500, fc::json::to_string(results));
-                     elog("STD Exception encountered while processing ${api}.${call}",
-                          ("api", api_name)("call", call_name));
-                     dlog("Exception Details: ${e}", ("e", e.what()));
-               }
-               catch (...)
-               {
-                     error_results results{500, "Internal Service Error",
-                                           error_results::error_info(fc::exception(FC_LOG_MESSAGE(error, "Unknown Exception")), verbose_http_errors)};
-                     cb(500, fc::json::to_string(results));
-                     elog("Unknown Exception encountered while processing ${api}.${call}",
-                          ("api", api_name)("call", call_name));
-               }
+      try {
+         try {
+            throw;
+         } catch (chain::unsatisfied_authorization& e) {
+            error_results results{401, "UnAuthorized", error_results::error_info(e, verbose_http_errors)};
+            cb( 401, fc::json::to_string( results ));
+         } catch (chain::tx_duplicate& e) {
+            error_results results{409, "Conflict", error_results::error_info(e, verbose_http_errors)};
+            cb( 409, fc::json::to_string( results ));
+         } catch (chain::transaction_exception& e) {
+            error_results results{400, "Bad Request", error_results::error_info(e, verbose_http_errors)};
+            cb( 400, fc::json::to_string( results ));
+         } catch (fc::eof_exception& e) {
+            error_results results{400, "Bad Request", error_results::error_info(e, verbose_http_errors)};
+            cb( 400, fc::json::to_string( results ));
+            elog( "Unable to parse arguments to ${api}.${call}", ("api", api_name)( "call", call_name ));
+            dlog("Bad arguments: ${args}", ("args", body));
+         } catch (fc::exception& e) {
+            error_results results{500, "Internal Service Error", error_results::error_info(e, verbose_http_errors)};
+            cb( 500, fc::json::to_string( results ));
+            elog( "FC Exception encountered while processing ${api}.${call}",
+                  ("api", api_name)( "call", call_name ));
+            dlog( "Exception Details: ${e}", ("e", e.to_detail_string()));
+         } catch (std::exception& e) {
+            error_results results{500, "Internal Service Error", error_results::error_info(fc::exception( FC_LOG_MESSAGE( error, e.what())), verbose_http_errors)};
+            cb( 500, fc::json::to_string( results ));
+            elog( "STD Exception encountered while processing ${api}.${call}",
+                  ("api", api_name)( "call", call_name ));
+            dlog( "Exception Details: ${e}", ("e", e.what()));
+         } catch (...) {
+            error_results results{500, "Internal Service Error",
+               error_results::error_info(fc::exception( FC_LOG_MESSAGE( error, "Unknown Exception" )), verbose_http_errors)};
+            cb( 500, fc::json::to_string( results ));
+            elog( "Unknown Exception encountered while processing ${api}.${call}",
+                  ("api", api_name)( "call", call_name ));
+         }
       } catch (...) {
          std::cerr << "Exception attempting to handle exception for " << api_name << "." << call_name << std::endl;
       }

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 import sys
 import os
 
@@ -23,4 +23,4 @@ f.close()
 
 
 # import eosio keypair
-os.system('cleos wallet import 5KXyqBjYphm3LUu89Sd2SztXRahjr7sF8tprXF1ZrfhqLzxSkGf')
+os.system('cleos wallet import --private-key 5KXyqBjYphm3LUu89Sd2SztXRahjr7sF8tprXF1ZrfhqLzxSkGf')

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import os
 import time
@@ -10,7 +10,7 @@ else:
     f = print
 
 FIRM = 'eosio'
-CONTRACT_PATH = ' ~/eos/build/contracts/'
+CONTRACT_PATH = ' ~/4-ckeos/ckeos/build/contracts/'
 CONTRACT_MSIG = FIRM + '.msig'
 CONTRACT_TOKEN = FIRM + '.token'
 
@@ -22,3 +22,6 @@ time.sleep(0.5)
 f('cleos set contract ' + FIRM + CONTRACT_PATH + FIRM + '.system/')
 time.sleep(0.5)
 f('cleos push action ' + FIRM + ''' setpriv '["''' + CONTRACT_MSIG + '''", 1]' -p ''' + FIRM + '@active')
+
+f('cleos push action ' + CONTRACT_TOKEN + ''' create '["''' + FIRM + '''", "10000000000.0000 SN"]' -p ''' + CONTRACT_TOKEN)
+f('cleos push action ' + CONTRACT_TOKEN + ''' issue '["''' + FIRM + '''", "1000000000.0000 SN", "memo"]' -p ''' + FIRM)
