@@ -22,7 +22,8 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "MIDebuggerPath":"/usr/bin/lldb-4.0"
         },
         {
             "name": "nodeos",
@@ -37,7 +38,8 @@
             "cwd": "${workspaceFolder}/build",
             "environment": [],
             "externalConsole": true,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "MIDebuggerPath":"/usr/bin/lldb-4.0"
         }
     ]
 }

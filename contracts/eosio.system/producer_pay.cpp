@@ -146,7 +146,7 @@ namespace eosiosystem {
                print("_gstate.total_unpaid_blocks = ", _gstate.total_unpaid_blocks);
                print("\n");
 
-               /*已被领取的计数*/
+               /*已分配的计数*/
                int64_t pervote_bucket_used = 0;
                int64_t perblock_bucket_used = 0;
                int64_t total_unpaid_blocks_used = 0;
