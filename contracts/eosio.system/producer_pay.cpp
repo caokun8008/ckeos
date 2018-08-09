@@ -47,6 +47,7 @@ namespace eosiosystem {
 
       /// only update block producers once every minute, block_timestamp is in half seconds
       if( timestamp.slot - _gstate.last_producer_schedule_update.slot > 120 ) {
+            maybe_start_bid_chain();
             print("before [fill_bucket_schedule()1]\n");
             
             fill_bucket_schedule();

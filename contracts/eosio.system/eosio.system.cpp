@@ -5,6 +5,7 @@
 #include "delegate_bandwidth.cpp"
 #include "voting.cpp"
 #include "exchange_state.cpp"
+#include "gen_chain.cpp"
 
 
 namespace eosiosystem {
@@ -196,4 +197,6 @@ EOSIO_ABI( eosiosystem::system_contract,
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
+     // gen_chain.cpp
+     (bidchain)(genchain)(setquota)
 )

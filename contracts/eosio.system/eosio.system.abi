@@ -611,6 +611,14 @@
         {
           "name": "last_name_close",
           "type": "block_timestamp_type"
+        },
+        {
+          "name": "bid_chain_quota",
+          "type": "uint32"
+        },
+        {
+          "name": "current_chain_quota",
+          "type": "uint32"
         }
       ]
     },
@@ -882,6 +890,53 @@
           "type": "uint64"
         }
       ]
+    }, {
+       "name": "bidder_info",
+       "base": "",
+       "fields": [
+         {"name":"bidder", "type":"account_name"},
+         {"name":"price", "type":"asset"},
+         {"name":"is_generated", "type":"bool"}
+       ]
+    }, {
+       "name": "bid_info",
+       "base": "",
+       "fields": [
+         {"name":"id", "type":"uint64"},
+         {"name":"is_ongoing", "type":"bool"},
+         {"name":"bidders", "type":"bidder_info[]"}
+       ]
+    }, {
+       "name": "bidchain",
+       "base": "",
+       "fields": [
+         {"name":"id", "type":"uint64"},
+         {"name":"bidder", "type":"account_name"},
+         {"name":"price", "type":"asset"}
+       ]
+    }, {
+       "name": "chain_info",
+       "base": "",
+       "fields": [
+         {"name":"issuer", "type":"account_name"},
+         {"name":"serial_number", "type":"string"},
+         {"name":"token_symbl", "type":"string"}
+       ]
+    }, {
+       "name": "genchain",
+       "base": "",
+       "fields": [
+         {"name":"issuer", "type":"account_name"},
+         {"name":"id", "type":"uint64"},
+         {"name":"serial_number", "type":"string"},
+         {"name":"token_symbl", "type":"string"}
+       ]
+    }, {
+       "name": "setquota",
+       "base": "",
+       "fields": [
+         {"name":"quota", "type":"uint32"}
+       ]
     }
   ],
   "actions": [
@@ -1029,8 +1084,19 @@
       "name": "setparams",
       "type": "setparams",
       "ricardian_contract": ""
-    }
-  ],
+    },{
+      "name": "bidchain",
+      "type": "bidchain",
+      "ricardian_contract": ""
+    },{
+      "name": "genchain",
+      "type": "genchain",
+      "ricardian_contract": ""
+    },{
+      "name": "setquota",
+      "type": "setquota",
+      "ricardian_contract": ""
+   }],
   "tables": [
     {
       "name": "producers",
@@ -1115,6 +1181,18 @@
       "key_types": [
         "account_name"
       ]
+    },{
+       "name": "chainbids",
+       "type": "bid_info",
+       "index_type": "i64",
+       "key_names" : ["id"],
+       "key_types" : ["uint64"]
+    },{
+       "name": "chains",
+       "type": "chain_info",
+       "index_type": "i64",
+       "key_names" : ["issuer"],
+       "key_types" : ["account_name"]
     }
   ],
   "ricardian_clauses": [
