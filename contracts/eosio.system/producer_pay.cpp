@@ -89,32 +89,25 @@ namespace eosiosystem {
          if (usecs_since_last_fill >= fill_bucket_frequency && _gstate.last_pervote_bucket_fill > 0) {
                /*资产总量和符号*/
                const asset token_supply = token(N(eosio.token)).get_supply(symbol_type(system_token_symbol).name());
-               print("token_supply is:", token_supply.amount, " ", token_supply.symbol);
-               print("\n");
+               
                /*计算本次时间段增发得新token总数*/
                auto new_tokens = static_cast<int64_t>((continuous_rate * double(token_supply.amount) * double(usecs_since_last_fill)) / double(useconds_per_year));
-               print("new_tokens is:", new_tokens);
-               print("\n");
+               
                /*计算本时间段奖励总数*/
                auto to_rewards = static_cast<int64_t>(new_tokens * reward_rate);
-               print("to_rewards = ", to_rewards);
-               print("\n");
+               
                /*计算本时间段需要往saving账户里转的token总数*/
                auto to_savings = static_cast<int64_t>(new_tokens - to_rewards);
-               print("to_savings = ", to_savings);
-               print("\n");
+               
                /*计算本时间段出块者奖励总数*/
                auto to_per_block_pay = static_cast<int64_t>(to_rewards * reward_perblock_rate);
-               print("to_per_block_pay = ", to_per_block_pay);
-               print("\n");
+               
                /*计算本时间段按照被投票权重分发的奖励总和*/
                auto to_per_vote_pay = static_cast<int64_t>(to_rewards * reward_standby_rate);
-               print("to_per_vote_pay = ", to_per_vote_pay);
-               print("\n");
+               
                /*计算本时间段投票者应该获取的奖励总和*/
                auto to_user_vote_pay = static_cast<int64_t>(to_rewards * reward_user_vote_rate);
-               print("to_user_vote_pay = ", to_user_vote_pay);
-               print("\n");
+               
                /*开始系统账户转账*/
                INLINE_ACTION_SENDER(eosio::token, issue)( N(eosio.token), {{N(eosio), N(active)}},
                 {N(eosio), asset(new_tokens), std::string("issue tokens for producer pay and savings")});
@@ -132,20 +125,13 @@ namespace eosiosystem {
 
                /*增加计数，以供get table 查询*/
                _gstate.pervote_bucket += to_per_vote_pay;
-               print("_gstate.pervote_bucket = ", _gstate.pervote_bucket);
-               print("\n");
+               
                _gstate.perblock_bucket += to_per_block_pay;
-               print("_gstate.perblock_bucket = ", _gstate.perblock_bucket);
-               print("\n");
+              
                _gstate.peruser_vote_bucket += to_user_vote_pay;
-               print("_gstate.peruser_vote_bucket = ", _gstate.peruser_vote_bucket);
-               print("\n");
+               
                _gstate.last_pervote_bucket_fill = ct;
-               print("_gstate.last_pervote_bucket_fill = ", _gstate.last_pervote_bucket_fill);
-               print("\n");
-               print("_gstate.total_unpaid_blocks = ", _gstate.total_unpaid_blocks);
-               print("\n");
-
+               
                /*已分配的计数*/
                int64_t pervote_bucket_used = 0;
                int64_t perblock_bucket_used = 0;
@@ -153,6 +139,7 @@ namespace eosiosystem {
                int64_t total_votes_used = 0;
 
                /** Record award division for producers */
+
                for (auto & prod : _producers) {
                      print("-----------------producer is : ", N(prod.owner));
                      print("\n");
@@ -173,7 +160,7 @@ namespace eosiosystem {
                      if (_gstate.total_producer_vote_weight > 0) {
                            producer_per_vote_pay = int64_t((_gstate.pervote_bucket * prod.total_votes) / _gstate.total_producer_vote_weight);
                            print("producer_per_vote_pay = ", producer_per_vote_pay);
-                            print("\n");
+                           print("\n");
                             print("prod.total_votes = ", prod.total_votes);
                             print("\n");
                      }
@@ -190,7 +177,7 @@ namespace eosiosystem {
                      total_votes_used += prod.total_votes;
                      print("total_votes_used = ", total_votes_used);
                      print("\n");
-                     
+                     #if 1
                      _producers.modify(prod, 0, [&](auto &p) {
                            p.unpaid_blocks = 0;
                            p.rewards_block_balance += producer_per_block_pay;
@@ -200,6 +187,7 @@ namespace eosiosystem {
                            print("p.rewards_vote_balance = ", p.rewards_vote_balance);
                            print("\n");
                      });
+                     #endif
                      
                }
 
