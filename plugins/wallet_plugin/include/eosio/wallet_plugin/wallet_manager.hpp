@@ -10,6 +10,16 @@
 
 namespace fc { class variant; }
 
+struct push_action_params {
+   std::string url = "http://localhost:8888/";
+   std::string contract;
+   std::string action;
+   std::string args;
+   std::string permission;
+};
+
+FC_REFLECT(push_action_params, (url)(contract)(action)(args)(permission));
+
 namespace eosio {
 namespace wallet {
 
@@ -124,10 +134,16 @@ public:
    /// Takes ownership of a wallet to use
    void own_and_use_wallet(const string& name, std::unique_ptr<wallet_api>&& wallet);
 
+   fc::variant push_action(const ::push_action_params& p);
+
 private:
    /// Verify timeout has not occurred and reset timeout if not.
    /// Calls lock_all() if timeout has passed.
    void check_timeout();
+
+   fc::variant determine_required_keys(const signed_transaction& trx);
+   fc::variant push_transaction( signed_transaction& trx, int32_t extra_kcpu, packed_transaction::compression_type compression );
+   fc::variant push_actions(std::vector<chain::action>&& actions, int32_t extra_kcpu, packed_transaction::compression_type compression );
 
 private:
    using timepoint_t = std::chrono::time_point<std::chrono::system_clock>;
