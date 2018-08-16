@@ -326,6 +326,27 @@ chain::action generate_nonce_action() {
    return chain::action( {}, config::null_account_name, "nonce", fc::raw::pack(fc::time_point::now().time_since_epoch().count()));
 }
 
+bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var ) {
+   static unordered_map<account_name, std::vector<char> > abi_cache;
+   auto it = abi_cache.find( account );
+   if ( it == abi_cache.end() ) {
+      const auto result = call(get_raw_code_and_abi_func, fc::mutable_variant_object("account_name", account));
+      std::tie( it, std::ignore ) = abi_cache.emplace( account, result["abi"].as_blob().data );
+      //we also received result["wasm"], but we don't use it
+   }
+   const std::vector<char>& abi_v = it->second;
+
+   abi_def abi;
+   if( abi_serializer::to_abi(abi_v, abi) ) {
+      abi_serializer abis( abi, fc::seconds(10) );
+      auto action_type = abis.get_action_type(action);
+      FC_ASSERT(!action_type.empty(), "Unknown action ${action} in contract ${contract}", ("action", action)("contract", account));
+      return abis.variant_to_binary(action_type, action_args_var, fc::seconds(10));
+   } else {
+      FC_ASSERT(false, "No ABI found for ${contract}", ("contract", account));
+   }
+}
+
 fc::variant wallet_manager::determine_required_keys(const chain::signed_transaction& trx) {
    // TODO better error checking
    //wdump((trx));
@@ -376,25 +397,81 @@ fc::variant wallet_manager::push_actions(std::vector<chain::action>&& actions, i
    return push_transaction(trx, extra_kcpu, compression);
 }
 
-bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var ) {
-   static unordered_map<account_name, std::vector<char> > abi_cache;
-   auto it = abi_cache.find( account );
-   if ( it == abi_cache.end() ) {
-      const auto result = call(get_raw_code_and_abi_func, fc::mutable_variant_object("account_name", account));
-      std::tie( it, std::ignore ) = abi_cache.emplace( account, result["abi"].as_blob().data );
-      //we also received result["wasm"], but we don't use it
-   }
-   const std::vector<char>& abi_v = it->second;
+chain::action create_newaccount(const name& creator, const name& newaccount, public_key_type owner, public_key_type active) {
+   return chain::action {
+      std::vector<chain::permission_level>{{creator,config::active_name}},
+      eosio::chain::newaccount{
+         .creator      = creator,
+         .name         = newaccount,
+         .owner        = eosio::chain::authority{1, {{owner, 1}}, {}},
+         .active       = eosio::chain::authority{1, {{active, 1}}, {}}
+      }
+   };
+}
 
-   abi_def abi;
-   if( abi_serializer::to_abi(abi_v, abi) ) {
-      abi_serializer abis( abi, fc::seconds(10) );
-      auto action_type = abis.get_action_type(action);
-      FC_ASSERT(!action_type.empty(), "Unknown action ${action} in contract ${contract}", ("action", action)("contract", account));
-      return abis.variant_to_binary(action_type, action_args_var, fc::seconds(10));
-   } else {
-      FC_ASSERT(false, "No ABI found for ${contract}", ("contract", account));
-   }
+chain::action create_action(const std::vector<permission_level>& authorization, const account_name& code, const action_name& act, const fc::variant& args) {
+   return chain::action{authorization, code, act, variant_to_bin(code, act, args)};
+}
+
+chain::action create_buyram(const name& creator, const name& newaccount, const asset& quantity) {
+   fc::variant act_payload = fc::mutable_variant_object()
+         ("payer", creator.to_string())
+         ("receiver", newaccount.to_string())
+         ("quant", quantity.to_string());
+   return create_action(std::vector<chain::permission_level>{{creator,config::active_name}},
+                        config::system_account_name, N(buyram), act_payload);
+}
+
+chain::action create_buyrambytes(const name& creator, const name& newaccount, uint32_t numbytes) {
+   fc::variant act_payload = fc::mutable_variant_object()
+         ("payer", creator.to_string())
+         ("receiver", newaccount.to_string())
+         ("bytes", numbytes);
+   return create_action(std::vector<chain::permission_level>{{creator,config::active_name}},
+                        config::system_account_name, N(buyrambytes), act_payload);
+}
+
+chain::action create_delegate(const name& from, const name& receiver, const asset& net, const asset& cpu, bool transfer) {
+   fc::variant act_payload = fc::mutable_variant_object()
+         ("from", from.to_string())
+         ("receiver", receiver.to_string())
+         ("stake_net_quantity", net.to_string())
+         ("stake_cpu_quantity", cpu.to_string())
+         ("transfer", transfer);
+   return create_action(std::vector<chain::permission_level>{{from,config::active_name}},
+                        config::system_account_name, N(delegatebw), act_payload);
+}
+
+fc::variant wallet_manager::create_account(const ::create_account_params& p) {
+   ::context = eosio::client::http::create_http_context();
+   ::url = p.url;
+
+   public_key_type owner_key, active_key;
+   try {
+      owner_key = public_key_type(p.owner);
+   } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid owner public key: ${public_key}", ("public_key", p.owner));
+   try {
+      active_key = public_key_type(p.active);
+   } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", p.active));
+
+   action create = create_newaccount(p.creator, p.newaccount, owner_key, active_key);
+   action buyram = create_buyram(p.creator, p.newaccount, asset::from_string(p.memory));
+   action delegate = create_delegate(p.creator, p.newaccount, asset::from_string(p.network), asset::from_string(p.cpu), false);
+   return push_actions( { create, buyram, delegate } );
+}
+
+fc::variant wallet_manager::easy_create_account(const std::string& account, const std::string& key) {
+   create_account_params p;
+   p.url = "http://127.0.0.1:8888/";
+   p.creator = "eosio.cname";
+   p.newaccount = account;
+   p.owner = key;
+   p.active = key;
+   p.network = "0.0050 EOS";
+   p.cpu = "0.0050 EOS";
+   p.memory = "0.0500 SN";
+
+   return create_account(p);
 }
 
 fc::variant json_from_file_or_string(const std::string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser)
