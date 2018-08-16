@@ -131,7 +131,8 @@ namespace eosiosystem {
    void system_contract::update_votes( const account_name voter_name, const account_name proxy, const std::vector<account_name>& producers, bool voting ) {
       //validate input
       if ( proxy ) {
-         eosio_assert( 0==1, "voting by proxy is not supported" );// abc
+         eosio_assert( 0==1, "voting by proxy is not supported" );
+
          eosio_assert( producers.size() == 0, "cannot vote for producers and proxy at same time" );
          eosio_assert( voter_name != proxy, "cannot proxy to self" );
          require_recipient( proxy );
