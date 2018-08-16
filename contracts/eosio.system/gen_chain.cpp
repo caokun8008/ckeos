@@ -135,12 +135,18 @@ void system_contract::setquota( uint32_t quota )
 void system_contract::maybe_start_bid_chain() {
     std::time_t t = static_cast<std::time_t>(current_time()/1000000);
     std::tm* gt = std::gmtime(&t);
-    /*if ( !((gt->tm_wday == 0) && (gt->tm_hour == 0)) ) {  //not between sunday 00:00 ~ 00:59
+    /* the period of bidding is 1 week. It is for release only.
+    if ( !((gt->tm_wday == 0) && (gt->tm_hour == 0)) ) {  //not between sunday 00:00 ~ 00:59
        return;
     }
 
     uint64_t week_id = static_cast<uint64_t>((gt->tm_year + 1900) * 100 + gt->tm_yday / 7);*/
-    uint64_t week_id = static_cast<uint64_t>(20 * 10000 + gt->tm_hour * 100 + gt->tm_min / 10);
+
+    /* the period of bidding is 1 hour. It is for test only.*/
+    uint64_t week_id = static_cast<uint64_t>(200000 + gt->tm_yday * 100 + gt->tm_hour);
+
+    /* the period of bidding is 10 minutes. It is for demo only.
+    uint64_t week_id = static_cast<uint64_t>(20 * 10000 + gt->tm_hour * 100 + gt->tm_min / 10);*/
 
     chainbids bidstable( _self, week_id );
     auto b_info = bidstable.find( week_id );
@@ -151,7 +157,7 @@ void system_contract::maybe_start_bid_chain() {
     //close the bid for last week
     uint64_t last_week_id;
     if ((week_id % 100) == 0)
-        last_week_id = week_id - 95;//48
+        last_week_id = week_id - 77;//48 for release; 77 for test; 95 for demo
     else 
         last_week_id = week_id - 1;
 
