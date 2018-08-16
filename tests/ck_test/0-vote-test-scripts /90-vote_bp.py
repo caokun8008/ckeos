@@ -21,4 +21,4 @@ for line in open('acc_keys'):
 for i in range(0,49):  
    f('cleos system voteproducer prods '+ voterList[i] + ' ' + producerList[i])
    print("voter: "+voterList[i]+ " vote "+ producerList[i] +" ok!" )
-   time.sleep(2)
+   time.sleep(1)

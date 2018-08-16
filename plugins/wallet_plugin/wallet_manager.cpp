@@ -25,6 +25,15 @@ bool valid_filename(const string& name) {
    return boost::filesystem::path(name).filename().string() == name;
 }
 
+bool valid_waltpin(const string &walt_pin)
+{
+      if (walt_pin.empty())
+            return false;
+      if (walt_pin.length() < 6 && walt_pin.length() > 16)
+            return false;
+      return true;
+}
+
 wallet_manager::wallet_manager() {
 #ifdef __APPLE__
    try {
@@ -51,10 +60,12 @@ void wallet_manager::check_timeout() {
    }
 }
 
-std::string wallet_manager::create(const std::string& name) {
+void wallet_manager::create(const std::string& name, const std::string& walt_pin) {
    check_timeout();
 
    EOS_ASSERT(valid_filename(name), wallet_exception, "Invalid filename, path not allowed in wallet name ${n}", ("n", name));
+
+   EOS_ASSERT(valid_waltpin(walt_pin), wallet_exception, "Invalid wallet pin, The length of the password setting needs to be greater than or equal to 6 characters and cannot be greater than 16 characters password ${walt_pin}", ("n", walt_pin));
 
    auto wallet_filename = dir / (name + file_ext);
 
@@ -62,7 +73,8 @@ std::string wallet_manager::create(const std::string& name) {
       EOS_THROW(chain::wallet_exist_exception, "Wallet with name: '${n}' already exists at ${path}", ("n", name)("path",fc::path(wallet_filename)));
    }
 
-   std::string password = gen_password();
+   //std::string password = gen_password();
+   std::string password = walt_pin;
    wallet_data d;
    auto wallet = make_unique<soft_wallet>(d);
    wallet->set_password(password);
@@ -82,7 +94,7 @@ std::string wallet_manager::create(const std::string& name) {
    }
    wallets.emplace(name, std::move(wallet));
 
-   return password;
+   //return password;
 }
 
 void wallet_manager::open(const std::string& name) {

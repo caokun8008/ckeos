@@ -142,8 +142,7 @@ namespace eosiosystem {
                /** Record award division for producers */
 
                for (auto & prod : _producers) {
-                     print("-----------------producer is : ", N(prod.owner));
-                     print("\n");
+                     print("-----------------producer is : ", name{prod.owner}, "\n" );
 
                      if (false == prod.active()) {
                            continue;
@@ -152,81 +151,72 @@ namespace eosiosystem {
                      int64_t producer_per_block_pay = 0;
                      if (_gstate.total_unpaid_blocks > 0) {
                            producer_per_block_pay = (_gstate.perblock_bucket * prod.unpaid_blocks) / _gstate.total_unpaid_blocks;
-                           print("producer_per_block_pay = ", producer_per_block_pay);
-                           print("\n");
-                           print("prod.unpaid_blocks = ", prod.unpaid_blocks);
-                           print("\n");
+                           print("producer_per_block_pay = ", producer_per_block_pay, "\n" );
+                           print("prod.unpaid_blocks = ", prod.unpaid_blocks, "\n" );
                      }
                      int64_t producer_per_vote_pay = 0;
                      if (_gstate.total_producer_vote_weight > 0) {
                            producer_per_vote_pay = int64_t((_gstate.pervote_bucket * prod.total_votes) / _gstate.total_producer_vote_weight);
-                           print("producer_per_vote_pay = ", producer_per_vote_pay);
-                           print("\n");
-                            print("prod.total_votes = ", prod.total_votes);
-                            print("\n");
+                           print("producer_per_vote_pay = ", producer_per_vote_pay, "\n" );
+                            print("prod.total_votes = ", prod.total_votes, "\n" );
                      }
                      pervote_bucket_used += producer_per_vote_pay;
-                     print("pervote_bucket_used = ", pervote_bucket_used);
-                     print("\n");
+                     print("pervote_bucket_used = ", pervote_bucket_used, "\n" );
                      perblock_bucket_used += producer_per_block_pay;
-                     print("perblock_bucket_used = ", perblock_bucket_used);
-                     print("\n");
+                     print("perblock_bucket_used = ", perblock_bucket_used, "\n" );
                      total_unpaid_blocks_used += prod.unpaid_blocks;
-                     print("total_unpaid_blocks_used = ", total_unpaid_blocks_used);
-                     print("\n");
+                     print("total_unpaid_blocks_used = ", total_unpaid_blocks_used, "\n" );
 
                      total_votes_used += prod.total_votes;
-                     print("total_votes_used = ", total_votes_used);
-                     print("\n");
+                     print("total_votes_used = ", total_votes_used, "\n" );
                      #if 1
                      _producers.modify(prod, 0, [&](auto &p) {
                            p.unpaid_blocks = 0;
                            p.rewards_block_balance += producer_per_block_pay;
-                           print("p.rewards_block_balance = ", p.rewards_block_balance);
-                           print("\n");
+                           print("p.rewards_block_balance = ", p.rewards_block_balance, "\n" );
                            p.rewards_vote_balance += producer_per_vote_pay;
-                           print("p.rewards_vote_balance = ", p.rewards_vote_balance);
-                           print("\n");
+                           print("p.rewards_vote_balance = ", p.rewards_vote_balance, "\n" );
                      });
                      #endif
                      
                }
 
                _gstate.pervote_bucket -= pervote_bucket_used;
-               print("_gstate.pervote_bucket = ", _gstate.pervote_bucket);
-               print("\n");
+               print("_gstate.pervote_bucket = ", _gstate.pervote_bucket, "\n" );
                _gstate.perblock_bucket -= perblock_bucket_used;
-               print("_gstate.perblock_bucket = ", _gstate.perblock_bucket);
-               print("\n");
+               print("_gstate.perblock_bucket = ", _gstate.perblock_bucket, "\n" );
                _gstate.total_unpaid_blocks -= total_unpaid_blocks_used;
-               print("_gstate.total_unpaid_blocks = ", _gstate.total_unpaid_blocks);
-               print("\n");
-               print("_gstate.total_producer_vote_weight = ", _gstate.total_producer_vote_weight);
-               print("\n");
-               print("total_votes_used = ", total_votes_used);
-               print("\n");
+               print("_gstate.total_unpaid_blocks = ", _gstate.total_unpaid_blocks, "\n" );
+               print("_gstate.total_producer_vote_weight = ", _gstate.total_producer_vote_weight, "\n" );
+               print("total_votes_used = ", total_votes_used, "\n" );
 
                /** Record award division for votes */
                if (_gstate.total_activated_stake > 0) {
                      int64_t peruser_vote_bucket_used = 0;
                      for (auto & vote : _voters) {
-                           print("the voter is : ", vote.owner);
+                           print("-----------------user is : ", name{vote.owner}, "\n" );
                            int64_t voter_per_vote_pay = 0;
+                           if(vote.last_vote_weight <= 0.0){
+                              print("user is not voter for anyone\n" );
+                              continue;
+                           }
 
                            voter_per_vote_pay = int64_t((_gstate.peruser_vote_bucket * vote.staked) / _gstate.total_activated_stake);
-                           print("voter_per_vote_pay = ", voter_per_vote_pay);
+                           print("voter_per_vote_pay = ", voter_per_vote_pay, "\n" );
 
                            peruser_vote_bucket_used += voter_per_vote_pay;
-                           print("peruser_vote_bucket_used = ", peruser_vote_bucket_used);
+                           print("peruser_vote_bucket_used = ", peruser_vote_bucket_used, "\n" );
 
                            _voters.modify(vote, 0, [&](auto &v) {
                                  v.rewards_vote_balance += voter_per_vote_pay;
-                                 print("v.claim_vote_balance = ", v.rewards_vote_balance);
+                                 print("v.claim_vote_balance = ", v.rewards_vote_balance, "\n" );
                            });
                      }
-
+                     print("pre _gstate.peruser_vote_bucket = ", _gstate.peruser_vote_bucket, "\n" );
+                     print("peruser_vote_bucket_used = ", peruser_vote_bucket_used, "\n" );
                      _gstate.peruser_vote_bucket -= peruser_vote_bucket_used;
-                     print("_gstate.peruser_vote_bucket = ", _gstate.peruser_vote_bucket);
+                     print("post _gstate.peruser_vote_bucket = ", _gstate.peruser_vote_bucket, "\n" );
+                    
                }
          }
 
