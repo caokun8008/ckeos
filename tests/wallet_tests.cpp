@@ -91,11 +91,8 @@ BOOST_AUTO_TEST_CASE(wallet_manager_test)
    BOOST_CHECK_THROW(wm.unlock("test", "pw"), fc::exception);
    BOOST_CHECK_THROW(wm.import_key("test", "pw"), fc::exception);
 
-   //auto pw = wm.create("test");
    auto pw = "passwd123456";
    wm.create("test",pw);
-   //BOOST_CHECK(!pw.empty());
-   //BOOST_CHECK_EQUAL(0, pw.find("PW")); // starts with PW
    BOOST_CHECK_EQUAL(1, wm.list_wallets().size());
    // wallet has no keys when it is created
    BOOST_CHECK_EQUAL(0, wm.get_public_keys().size());

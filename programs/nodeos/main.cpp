@@ -94,6 +94,7 @@ int main(int argc, char** argv)
 {
    try {
       app().set_version(eosio::nodeos::config::version);
+      app().set_uuid(eosio::nodeos::config::uuid);
       app().register_plugin<history_plugin>();
 
       auto root = fc::app_path();

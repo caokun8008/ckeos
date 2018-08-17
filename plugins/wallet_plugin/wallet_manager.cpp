@@ -96,7 +96,6 @@ void wallet_manager::create(const std::string& name, const std::string& walt_pin
       EOS_THROW(chain::wallet_exist_exception, "Wallet with name: '${n}' already exists at ${path}", ("n", name)("path",fc::path(wallet_filename)));
    }
 
-   //std::string password = gen_password();
    std::string password = walt_pin;
    wallet_data d;
    auto wallet = make_unique<soft_wallet>(d);
@@ -117,7 +116,6 @@ void wallet_manager::create(const std::string& name, const std::string& walt_pin
    }
    wallets.emplace(name, std::move(wallet));
 
-   //return password;
 }
 
 void wallet_manager::open(const std::string& name) {

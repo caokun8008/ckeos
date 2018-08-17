@@ -2278,12 +2278,10 @@ int main( int argc, char** argv ) {
    createWallet->add_option("-n,--name", wallet_name, localized("The name of the new wallet"), true);
    createWallet->add_option("--password", wallet_pin, localized("The password of the new wallet"),false);
       createWallet->set_callback( [&wallet_name,&wallet_pin]{
-      const auto& v = call(wallet_url, wallet_create, wallet_name,wallet_pin);
+      fc::variants vs = {fc::variant(wallet_name), fc::variant(wallet_pin)};
+      call(wallet_url, wallet_create, vs);
       std::cout << localized("Creating wallet: ${wallet_name}", ("wallet_name", wallet_name)) << std::endl;
-      //std::cout << localized("Save password to use in the future to unlock this wallet.") << std::endl;
-      //std::cout << localized("Without password imported keys will not be retrievable.") << std::endl;
-      //std::cout << fc::json::to_pretty_string(v) << std::endl;
-       });
+   });
 
    // open wallet
    auto openWallet = wallet->add_subcommand("open", localized("Open an existing wallet"), false);

@@ -26,6 +26,16 @@ namespace appbase {
           * @return Version output with -v/--version
           */
          uint64_t version() const;
+         /** @brief Set uuid
+          *
+          * @param uuid Version output with -v/--uuid
+          */
+         void set_uuid(const string& uuid);
+          /** @brief Get uuid
+          *
+          * @return uuid output with --uuid
+          */
+         string uuid() const;
          /** @brief Set default data directory
           *
           * @param data_dir Default data directory to use if not specified

@@ -28,6 +28,7 @@ class application_impl {
       bfs::path               _logging_conf{"logging.json"};
 
       uint64_t                _version;
+      std::string             _uuid;
 };
 
 application::application()
@@ -43,6 +44,14 @@ void application::set_version(uint64_t version) {
 
 uint64_t application::version() const {
   return my->_version;
+}
+
+void application::set_uuid(const string& uuid) {
+  my->_uuid = uuid;
+}
+
+string application::uuid() const {
+  return my->_uuid;
 }
 
 void application::set_default_data_dir(const bfs::path& data_dir) {
@@ -96,6 +105,7 @@ void application::set_program_options()
    app_cli_opts.add_options()
          ("help,h", "Print this help message and exit.")
          ("version,v", "Print version information.")
+         ("uuid,u", "Print uuid of program.")
          ("print-default-config", "Print default configuration template")
          ("data-dir,d", bpo::value<std::string>(), "Directory containing program runtime data")
          ("config-dir", bpo::value<std::string>(), "Directory containing configuration files such as config.ini")
@@ -120,6 +130,11 @@ bool application::initialize_impl(int argc, char** argv, vector<abstract_plugin*
 
    if( options.count( "version" ) ) {
       cout << my->_version << std::endl;
+      return false;
+   }
+
+   if( options.count( "uuid" ) ) {
+      cout << my->_uuid << std::endl;
       return false;
    }
 

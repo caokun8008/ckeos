@@ -404,6 +404,7 @@ namespace eosiosystem {
       changebw( from, receiver, -unstake_net_quantity, -unstake_cpu_quantity, false);
    } // undelegatebw
 
+
    void system_contract::refund( const account_name owner ) {
       require_auth( owner );
 
