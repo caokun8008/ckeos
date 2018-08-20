@@ -54,40 +54,34 @@ using namespace eosio::deploy::localize;
 using namespace eosio::deploy::config;
 using namespace eosio::deploy;
 
-string config_file_path = "";
-
-static deployment dep;
-
 int main( int argc, char** argv ) 
 {
    setlocale(LC_ALL, "");
    bindtextdomain(locale_domain, locale_path);
    textdomain(locale_domain);
 
-   /** set default cfg file name */
-   auto file_name = fc::home_path().string() + "/eosio-deploy/eosio-deploy.json";
-   
-   config_file_path = file_name;
-
    CLI::App app{"Command Line Interface to EOSIO Client"};
    
    app.require_subcommand();
 
-   app.add_subcommand("version", localized("Retrieve version information"))->set_callback([] 
-   {
+   app.add_subcommand("version", localized("Retrieve version information"))->set_callback([] {
       std::cout << localized("Build version: ${ver}", ("ver", eosio::deploy::config::version_str)) << std::endl;
    });
 
-   /** Generate the producer's profile and genesis profile */
-   auto gen_producers_subcommand = app.add_subcommand("gen_producers", localized("Generate the producer's profile and genesis profile"))->set_callback([] 
-   {
-      dep.set_deploy_cfg_file( config_file_path );
-    
-      std::cout << "Generate the producer's profile and genesis profile strating......" << std::endl;
+   /** Generate subcommand */
+   auto gen_subcmd = app.add_subcommand("gen", localized("Generate the producer's profile or genesis profile"), false);
+   gen_subcmd->require_subcommand();
+   
+   string config_file = fc::home_path().string() + "/eosio-deploy/eosio-deploy.json";
+   
+   auto gen_producers = gen_subcmd->add_subcommand("producers", localized("Generate the producer's profile and package them"), false);
+   gen_producers->add_option( "-f,--config-file", config_file, localized("Configuration file with full path"), true );
+   gen_producers->set_callback([ &config_file ] {
+      deployment dep;
+      dep.set_deploy_cfg_file( config_file );
+      std::cout << "Generate the producer's profile、genesis profile and package them strating......" << std::endl;
       dep.process_deploy();
-   });
-   /** gen_producers subcommand has one option '-f' */
-   gen_producers_subcommand->add_option( "-f,--config-file", config_file_path, localized("Configuration file with full path"), true );
+   });   
    
    try {
        app.parse(argc, argv);

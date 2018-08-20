@@ -35,48 +35,42 @@ namespace eosio
          std::vector<std::string> plugins;
       };
       struct deployment_config{
-         std::string nodeos_location;
          std::string primary_node_producer;
          std::vector<producer_config> producers;
       };
-      struct deplay_keypair{
+      struct deploy_keypair{
          std::string pub_key;
          std::string pri_key;
 
       };
 
-      struct deplay_account{
+      struct deploy_account{
          std::string name;
-         deplay_keypair owner_key;
-         deplay_keypair active_key;
+         deploy_keypair owner_key;
+         deploy_keypair active_key;
       };
 	  
-      struct deplay_accounts {
-         std::vector<deplay_account> deplay_accounts;
+      struct deploy_accounts {
+         std::string chain_id;
+         std::vector<deploy_account> deploy_accounts;
       };
 
    class deployment
    {
       public:
          deployment(){
-            nodeos_default_cfg.emplace(std::make_pair("genesis-json",
-                                                     std::make_pair("File to read Genesis State from",
-                                                                    std::string("./genesis.json"))));
-            nodeos_default_cfg.emplace(std::make_pair("block-log-dir",
-                                                     std::make_pair("Block log dir",
+            nodeos_default_cfg.emplace(std::make_pair("blocks-dir",
+                                                     std::make_pair("the location of the blocks directory (absolute path or relative to application data dir) (eosio::chain_plugin)",
                                                                     std::string("blocks"))));
-            nodeos_default_cfg.emplace(std::make_pair("readonly",
-                                                     std::make_pair("readonly",
-                                                                    std::string("0"))));
-            nodeos_default_cfg.emplace(std::make_pair("send-whole-blocks",
-                                                     std::make_pair("Send whole blocks",
-                                                                    std::string("true"))));
             nodeos_default_cfg.emplace(std::make_pair("enable-stale-production",
                                                      std::make_pair("Enable block production, even if the chain is stale. (eosio::producer_plugin)",
                                                                     std::string("true"))));
             nodeos_default_cfg.emplace(std::make_pair("http-server-address",
                                                      std::make_pair("The local IP and port to listen for incoming http connections; set blank to disable. (eosio::http_plugin)",
-                                                                    std::string("127.0.0.1:8888"))));
+                                                                    std::string("0.0.0.0:8888"))));
+            nodeos_default_cfg.emplace(std::make_pair("http-alias",
+                                                     std::make_pair("Additionaly acceptable values for the \"Host\" header of incoming HTTP requests, can be specified multiple times.  Includes http/s_server_address by default. (eosio::http_plugin)",
+                                                                  std::string("0.0.0.0:8888"))));
             nodeos_default_cfg.emplace(std::make_pair("p2p-listen-endpoint",
                                                      std::make_pair("The actual host:port used to listen for incoming p2p connections. (eosio::net_plugin)",
                                                                     std::string("0.0.0.0:9876"))));
@@ -175,17 +169,18 @@ namespace eosio
             }
 
             /** gen eosio account keypair */
-            deplay_account eosio_acc;
+            deploy_account eosio_acc;
             eosio_acc.name = "eosio";
             eosio_acc.active_key = gen_keypair();
             eosio_acc.owner_key = gen_keypair();
-            deploy_acc_list.deplay_accounts.push_back(eosio_acc);
+            deploy_acc_list.deploy_accounts.push_back(eosio_acc);
             
             /** gen genesis.jason */
             std::cout<<"processing-->Create default nodeos's genesis file." <<std::endl;
             eosio::chain::genesis_state genesis_cfg; 
-            genesis_cfg.initial_timestamp = fc::time_point::now();
-            genesis_cfg.initial_key = fc::variant(deploy_acc_list.deplay_accounts[0].active_key.pub_key).as<fc::crypto::public_key>();
+            genesis_cfg.initial_timestamp = calculate_genesis_timestamp("now");
+            genesis_cfg.initial_key = fc::variant( deploy_acc_list.deploy_accounts[0].active_key.pub_key ).as<fc::crypto::public_key>();
+            deploy_acc_list.chain_id =  genesis_cfg.compute_chain_id();
             fc::json::save_to_file<eosio::chain::genesis_state>(genesis_cfg, deploy_dir_work/"genesis.json", true);
 
             /** get_specified_producer config for each producer and package them */
@@ -194,7 +189,7 @@ namespace eosio
 
                /** Create the producer's folder */
                std::cout<<"       deplory-->Create the producer's folder!" <<std::endl;
-               deplay_account pd_acc;
+               deploy_account pd_acc;
                pd_acc.name = producer.name;
                fc::path pd_path(deploy_dir_work/pd_acc.name);
 
@@ -212,10 +207,9 @@ namespace eosio
                   save_producer_config(pd_path/"config.ini", cfg_map);
                }
                
-               deploy_acc_list.deplay_accounts.push_back(pd_acc);
+               deploy_acc_list.deploy_accounts.push_back(pd_acc);
 
                fc::copy(deploy_dir_work/"genesis.json", pd_path/"genesis.json");
-               fc::copy(fc::path(deploy_cfg.nodeos_location), pd_path/"nodeos");
 
                /** Package producer's files*/
                std::cout<<"       deplory-->Package producer's files!" <<std::endl;
@@ -231,14 +225,14 @@ namespace eosio
                fc::remove_all(pd_path);
             }
             fc::remove(deploy_dir_work/"genesis.json");
-            fc::json::save_to_file<deplay_accounts>( deploy_acc_list, deploy_dir_work/"producers_keys.json", true );
+            fc::json::save_to_file<deploy_accounts>( deploy_acc_list, deploy_dir_work/"producers_keys.json", true );
          }
          std::string get_deploy_cfg_fullname(){
             return deploy_cfg_name.string();
          }
 
       private:
-         nodeos_cfg_map get_specified_producer_config(producer_config producer,deplay_account acc_eosio, deplay_account& acc_producer,
+         nodeos_cfg_map get_specified_producer_config(producer_config producer,deploy_account acc_eosio, deploy_account& acc_producer,
                                                         std::vector<producer_config> producers, bool is_primary_node = false){
             nodeos_cfg_map cfg_map = nodeos_default_cfg;
 
@@ -258,6 +252,11 @@ namespace eosio
             std::string address = boost::any_cast<std::string>(cfg_map["http-server-address"].second);
             address = address.replace(address.find(':')+1, address.length()-address.find(':'), producer.http_server_port);
             cfg_map["http-server-address"].second = address;
+
+            /** update http-alias config */
+            address =  producer.location + ":" + producer.http_server_port;
+            cfg_map["http-alias"].second = address;
+
 
             /** update p2p-listen-endpoint config */
             address = boost::any_cast<std::string>(cfg_map["p2p-listen-endpoint"].second);
@@ -341,18 +340,18 @@ namespace eosio
             out_cfg.close();
          }
 
-         deplay_keypair gen_keypair(){
+         deploy_keypair gen_keypair(){
             auto pri_key = fc::crypto::private_key::generate<fc::ecc::private_key_shim>();
             auto pub_key = pri_key.get_public_key();
 
-            deplay_keypair kp;
+            deploy_keypair kp;
             kp.pub_key = std::string(pub_key);
             kp.pri_key = std::string(pri_key);
          
             return kp;   
          }
 
-         std::string get_signature_provider(deplay_keypair& keypair){
+         std::string get_signature_provider(deploy_keypair& keypair){
             return keypair.pub_key + "=KEY:" + keypair.pri_key;
          }
 
@@ -377,12 +376,30 @@ namespace eosio
                );
             }
          }
+		 
+         fc::time_point calculate_genesis_timestamp( std::string tstr ) {
+            fc::time_point genesis_timestamp;
+            if( strcasecmp (tstr.c_str(), "now") == 0 ) {
+               genesis_timestamp = fc::time_point::now();
+            } else {
+               genesis_timestamp = chain::time_point::from_iso_string( tstr );
+            }
+
+            auto epoch_us = genesis_timestamp.time_since_epoch().count();
+            auto diff_us = epoch_us % chain::config::block_interval_us;
+            if (diff_us > 0) {
+               auto delay_us = (chain::config::block_interval_us - diff_us);
+               genesis_timestamp += fc::microseconds(delay_us);
+            }
+
+            return genesis_timestamp;
+         }
 
          fc::path deploy_dir_name;
          fc::path deploy_cfg_name;
          fc::path deploy_dir_work;
          deployment_config deploy_cfg;
-         deplay_accounts deploy_acc_list;
+         deploy_accounts deploy_acc_list;
          nodeos_cfg_map nodeos_default_cfg;
    };
 }
@@ -392,9 +409,9 @@ namespace eosio
 FC_REFLECT(eosio::deploy::producer_config,
            (name)(location)(http_server_port)(p2p_server_port)(plugins))
 FC_REFLECT(eosio::deploy::deployment_config,
-           (nodeos_location)(primary_node_producer)(producers))
-FC_REFLECT(eosio::deploy::deplay_account,
+           (primary_node_producer)(producers))
+FC_REFLECT(eosio::deploy::deploy_account,
            (name)(owner_key)(active_key))
-FC_REFLECT(eosio::deploy::deplay_keypair,
+FC_REFLECT(eosio::deploy::deploy_keypair,
            (pub_key)(pri_key))
-FC_REFLECT(eosio::deploy::deplay_accounts, (deplay_accounts))
+FC_REFLECT(eosio::deploy::deploy_accounts, (chain_id)(deploy_accounts))
