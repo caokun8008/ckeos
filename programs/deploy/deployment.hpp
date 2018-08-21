@@ -51,7 +51,7 @@ namespace eosio
       };
 	  
       struct deploy_accounts {
-         std::string chain_id;
+         std::string copyright_uuid;
          std::vector<deploy_account> deploy_accounts;
       };
 
@@ -180,7 +180,7 @@ namespace eosio
             eosio::chain::genesis_state genesis_cfg; 
             genesis_cfg.initial_timestamp = calculate_genesis_timestamp("now");
             genesis_cfg.initial_key = fc::variant( deploy_acc_list.deploy_accounts[0].active_key.pub_key ).as<fc::crypto::public_key>();
-            deploy_acc_list.chain_id =  genesis_cfg.compute_chain_id();
+            deploy_acc_list.copyright_uuid =  genesis_cfg.compute_chain_id();
             fc::json::save_to_file<eosio::chain::genesis_state>(genesis_cfg, deploy_dir_work/"genesis.json", true);
 
             /** get_specified_producer config for each producer and package them */
@@ -414,4 +414,4 @@ FC_REFLECT(eosio::deploy::deploy_account,
            (name)(owner_key)(active_key))
 FC_REFLECT(eosio::deploy::deploy_keypair,
            (pub_key)(pri_key))
-FC_REFLECT(eosio::deploy::deploy_accounts, (chain_id)(deploy_accounts))
+FC_REFLECT(eosio::deploy::deploy_accounts, (copyright_uuid)(deploy_accounts))

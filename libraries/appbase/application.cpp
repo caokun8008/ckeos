@@ -28,7 +28,7 @@ class application_impl {
       bfs::path               _logging_conf{"logging.json"};
 
       uint64_t                _version;
-      std::string             _uuid;
+      std::string             _copyright_uuid;
 };
 
 application::application()
@@ -46,12 +46,12 @@ uint64_t application::version() const {
   return my->_version;
 }
 
-void application::set_uuid(const string& uuid) {
-  my->_uuid = uuid;
+void application::set_copyright_uuid(const string& copyright_uuid) {
+  my->_copyright_uuid = copyright_uuid;
 }
 
-string application::uuid() const {
-  return my->_uuid;
+string application::copyright_uuid() const {
+  return my->_copyright_uuid;
 }
 
 void application::set_default_data_dir(const bfs::path& data_dir) {
@@ -105,7 +105,7 @@ void application::set_program_options()
    app_cli_opts.add_options()
          ("help,h", "Print this help message and exit.")
          ("version,v", "Print version information.")
-         ("uuid,u", "Print uuid of program.")
+         ("uuid,u", "Print copyright uuid of program.")
          ("print-default-config", "Print default configuration template")
          ("data-dir,d", bpo::value<std::string>(), "Directory containing program runtime data")
          ("config-dir", bpo::value<std::string>(), "Directory containing configuration files such as config.ini")
@@ -134,7 +134,7 @@ bool application::initialize_impl(int argc, char** argv, vector<abstract_plugin*
    }
 
    if( options.count( "uuid" ) ) {
-      cout << my->_uuid << std::endl;
+      cout <<"copyright uuid:" << my->_copyright_uuid << std::endl;
       return false;
    }
 

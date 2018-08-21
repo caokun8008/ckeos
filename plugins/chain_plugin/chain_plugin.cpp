@@ -874,6 +874,8 @@ read_only::get_info_results read_only::get_info(const read_only::get_info_params
    const auto& rm = db.get_resource_limits_manager();
    return {
       eosio::utilities::common::itoh(static_cast<uint32_t>(app().version())),
+      "Acute Angle cloud",
+      app().copyright_uuid(),
       db.get_chain_id(),
       db.fork_db_head_block_num(),
       db.last_irreversible_block_num(),

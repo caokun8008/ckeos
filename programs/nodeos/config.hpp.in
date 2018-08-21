@@ -11,7 +11,7 @@
 
 namespace eosio { namespace nodeos { namespace config {
   constexpr uint64_t version = 0x${nodeos_BUILD_VERSION};
-  constexpr char uuid[] = "${NODEOS_UUID}";
+  constexpr char copyright_uuid[] = "${COPYRIGHT_UUID}";
 }}}
 
 #endif // CONFIG_HPP_IN
