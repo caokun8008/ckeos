@@ -1,0 +1,63 @@
+{
+   "version": "eosio::abi/1.0",
+   "types": [{
+      "new_type_name": "account_name",
+      "type": "name"
+   }],
+   "structs": [{
+      "name": "kilo",
+      "base": "",
+      "fields": [
+        {"name":"id", "type":"account_name"},
+        {"name":"num", "type":"uint64"}
+      ]
+    },
+    {
+      "name": "consume_data",
+      "base": "",
+      "fields": [
+        {"name":"id", "type":"account_name"},
+        {"name":"mem", "type":"string[]"}
+      ]
+    },
+    {
+      "name": "consume_info",
+      "base": "",
+      "fields": [
+        {"name":"id", "type":"account_name"},
+        {"name":"count", "type":"uint64"}
+      ]
+    }
+  ],
+  "actions": [{
+      "name": "kilo",
+      "type": "kilo",
+      "ricardian_contract": ""
+    },{
+      "name": "mega",
+      "type": "kilo",
+      "ricardian_contract": ""
+    },{
+      "name": "giga",
+      "type": "kilo",
+      "ricardian_contract": ""
+    }
+  ],
+  "tables": [{
+      "name": "consumedata",
+      "type": "consume_data",
+      "index_type": "i64",
+      "key_names" : ["id"],
+      "key_types" : ["account_name"]
+    },
+    {
+      "name": "consumeinfo",
+      "type": "consume_info",
+      "index_type": "i64",
+      "key_names" : ["id"],
+      "key_types" : ["account_name"]
+    }
+  ],
+  "ricardian_clauses": [],
+  "abi_extensions": []
+}
