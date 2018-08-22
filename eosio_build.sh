@@ -34,7 +34,7 @@
 
    function usage()
    {
-      printf "\\tUsage: %s \\n\\t[Build Option -o <Debug|Release|RelWithDebInfo|MinSizeRel>] \\n\\t[CodeCoverage -c] \\n\\t[Doxygen -d] \\n\\t[CoreSymbolName -s <1-7 characters>] \\n\\t[Avoid Compiling -a]\\n\\t[Copyright uuid -u]\\n\\n" "$0" 1>&2
+      printf "\\tUsage: %s \\n\\t[Build Option -o <Debug|Release|RelWithDebInfo|MinSizeRel>] \\n\\t[CodeCoverage -c] \\n\\t[Doxygen -d] \\n\\t[CoreSymbolName -s <1-7 characters>] \\n\\t[Avoid Compiling -a]\\n\\n" "$0" 1>&2
       exit 1
    }
 
@@ -51,7 +51,6 @@
    CORE_SYMBOL_NAME="EOS"
    START_MAKE=true
    RAM_TRADE_SYMBOL_NAME="SN" 
-   COPYRIGHT_UUID="00d48a14e7f551db85db479381694c117d33690ae0c66af48b776971c9d565aa"
    TEMP_DIR="/tmp"
    TIME_BEGIN=$( date -u +%s )
    VERSION=1.2
@@ -61,7 +60,7 @@
    txtrst=$(tput sgr0)
 
    if [ $# -ne 0 ]; then
-      while getopts ":cdou:s:ah" opt; do
+      while getopts ":cdo:s:ah" opt; do
          case "${opt}" in
             o )
                options=( "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
@@ -78,15 +77,6 @@
             ;;
             d )
                DOXYGEN=true
-            ;;
-			u )
-               if [ "${#OPTARG}" -ne 64 ]; then
-                  printf "\\n\\tInvalid argument: %s\\n argument length is %d, requested length is 64  \\n" "${OPTARG}", "${#OPTARG}" 1>&2
-                  usage
-                  exit 1
-               else
-                  COPYRIGHT_UUID="${OPTARG}"
-               fi
             ;;
             s)
                if [ "${#OPTARG}" -gt 6 ] || [ -z "${#OPTARG}" ]; then
@@ -144,7 +134,6 @@
    printf "\\tgit head id: %s\\n" "$( cat .git/refs/heads/master )"
    printf "\\tCurrent branch: %s\\n" "$( git rev-parse --abbrev-ref HEAD )"
    printf "\\n\\tARCHITECTURE: %s\\n" "${ARCH}"
-   printf "\\n\\tCopyright uuid: %s\\n" "${COPYRIGHT_UUID}"
 
    popd &> /dev/null
 
@@ -268,7 +257,7 @@
 
    if ! "${CMAKE}" -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" -DCMAKE_CXX_COMPILER="${CXX_COMPILER}" \
       -DCMAKE_C_COMPILER="${C_COMPILER}" -DWASM_ROOT="${WASM_ROOT}" -DCORE_SYMBOL_NAME="${CORE_SYMBOL_NAME}" \
-      -DRAM_TRADE_SYMBOL_NAME="${RAM_TRADE_SYMBOL_NAME}" -DCOPYRIGHT_UUID="${COPYRIGHT_UUID}" \
+      -DRAM_TRADE_SYMBOL_NAME="${RAM_TRADE_SYMBOL_NAME}" \
       -DOPENSSL_ROOT_DIR="${OPENSSL_ROOT_DIR}" -DBUILD_MONGO_DB_PLUGIN=true \
       -DENABLE_COVERAGE_TESTING="${ENABLE_COVERAGE_TESTING}" -DBUILD_DOXYGEN="${DOXYGEN}" \
       -DCMAKE_INSTALL_PREFIX="/usr/local/eosio" "${SOURCE_DIR}"

@@ -73,8 +73,6 @@ public:
 
    struct get_info_results {
       string                  server_version;
-      string                  copyright_stamp = "acute Angle cloud";
-      string                  copyright_uuid = "Invalid";
       chain::chain_id_type    chain_id;
       uint32_t                head_block_num = 0;
       uint32_t                last_irreversible_block_num = 0;
@@ -552,7 +550,7 @@ private:
 FC_REFLECT( eosio::chain_apis::permission, (perm_name)(parent)(required_auth) )
 FC_REFLECT(eosio::chain_apis::empty, )
 FC_REFLECT(eosio::chain_apis::read_only::get_info_results,
-(server_version)(copyright_stamp)(copyright_uuid)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit) )
+(server_version)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit) )
 FC_REFLECT(eosio::chain_apis::read_only::get_block_params, (block_num_or_id) )
 FC_REFLECT(eosio::chain_apis::read_only::get_blocks_params, (lower_block_num)(upper_block_num) )
 FC_REFLECT(eosio::chain_apis::read_only::get_block_header_state_params, (block_num_or_id))

@@ -26,16 +26,6 @@ namespace appbase {
           * @return Version output with -v/--version
           */
          uint64_t version() const;
-         /** @brief Set copyright uuid
-          *
-          * @param copyright uuid output with -u/--uuid
-          */
-         void set_copyright_uuid(const string& uuid);
-          /** @brief Get copyright uuid
-          *
-          * @return copyright uuid output with --uuid
-          */
-         string copyright_uuid() const;
          /** @brief Set default data directory
           *
           * @param data_dir Default data directory to use if not specified
