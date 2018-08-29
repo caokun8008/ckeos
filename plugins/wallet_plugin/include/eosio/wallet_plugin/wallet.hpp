@@ -144,7 +144,7 @@ class soft_wallet final : public wallet_api
        *                        or overwrite.  If \c wallet_filename is empty,
        *                        save to the current filename.
        */
-      void    save_wallet_file(string wallet_filename = "");
+      void    save_wallet_file(string wallet_filename = "") override;
 
       /** Sets the wallet filename used for future writes.
        *

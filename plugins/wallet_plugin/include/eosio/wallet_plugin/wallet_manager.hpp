@@ -146,6 +146,13 @@ public:
    /// Takes ownership of a wallet to use
    void own_and_use_wallet(const string& name, std::unique_ptr<wallet_api>&& wallet);
 
+   /// Change password for the specified wallet.
+   /// Wallet must be opened and unlocked.
+   /// @param name the name of the wallet to change password.
+   /// @param password the new plaintext password of the wallet.
+   /// @throws fc::exception if wallet not found or invalid password or already unlocked.
+   void change_password(const std::string& name, const std::string& password);
+
    fc::variant create_account(const ::create_account_params& p);
    fc::variant easy_create_account(const std::string& account, const std::string& key);
    fc::variant push_action(const ::push_action_params& p);

@@ -298,6 +298,22 @@ void wallet_manager::own_and_use_wallet(const string& name, std::unique_ptr<wall
    wallets.emplace(name, std::move(wallet));
 }
 
+void wallet_manager::change_password(const std::string& name, const std::string& password) {
+   check_timeout();
+   if (wallets.count(name) == 0) {
+      EOS_THROW(chain::wallet_nonexistent_exception, "Wallet not found: ${w}", ("w", name));
+   }
+   auto& w = wallets.at(name);
+   if (w->is_locked()) {
+      EOS_THROW(chain::wallet_locked_exception, "Wallet is locked: ${w}", ("w", name));
+   }
+   EOS_ASSERT(valid_waltpin(password), wallet_exception, "Invalid wallet password, the password length must be between 6 and 16 characters long");
+
+   w->set_password(password);
+   w->unlock(password);
+   w->save_wallet_file();
+}
+
 template<typename T>
 fc::variant call( const std::string& url,
                   const std::string& path,

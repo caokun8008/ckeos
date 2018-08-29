@@ -103,6 +103,8 @@ void wallet_api_plugin::plugin_startup() {
             INVOKE_R_R_R(wallet_mgr, list_keys, std::string, std::string), 200),
        CALL(wallet, wallet_mgr, get_public_keys,
             INVOKE_R_V(wallet_mgr, get_public_keys), 200),
+       CALL(wallet, wallet_mgr, change_password,
+            INVOKE_V_R_R(wallet_mgr, change_password, std::string, std::string), 200),
        CALL(wallet, wallet_mgr, create_account,
             INVOKE_R_R(wallet_mgr, create_account, ::create_account_params), 202),
        CALL(wallet, wallet_mgr, easy_create_account,
