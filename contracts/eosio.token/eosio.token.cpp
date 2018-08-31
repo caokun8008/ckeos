@@ -84,26 +84,6 @@ void token::transfer( account_name from,
     add_balance( to, quantity, from );
 }
 
-void token::consume( account_name from, asset quantity, string memo )
-{
-    require_auth( from );
-    auto sym = quantity.symbol.name();
-    stats statstable( _self, sym );
-    const auto& st = statstable.get( sym );
-
-    require_recipient( from );
-    eosio_assert( quantity.is_valid(), "invalid quantity" );
-    eosio_assert( quantity.amount > 0, "must transfer positive quantity" );
-    eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
-    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
-
-    sub_balance( from, quantity );
-
-    statstable.modify( st, 0, [&]( auto& s ) {
-       s.supply -= quantity;
-    });
-}
-
 void token::sub_balance( account_name owner, asset value ) {
    accounts from_acnts( _self, owner );
 
@@ -137,4 +117,4 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
 
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(consume) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer) )

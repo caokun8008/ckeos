@@ -62,24 +62,6 @@
       ]
     },
     {
-      "name": "consume",
-      "base": "",
-      "fields": [
-        {
-          "name": "from",
-          "type": "account_name"
-        },
-        {
-          "name": "quantity",
-          "type": "asset"
-        },
-        {
-          "name": "memo",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "account",
       "base": "",
       "fields": [
@@ -122,11 +104,6 @@
     {
       "name": "create",
       "type": "create",
-      "ricardian_contract": ""
-    },
-    {
-      "name": "consume",
-      "type": "consume",
       "ricardian_contract": ""
     }
   ],

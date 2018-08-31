@@ -17,7 +17,7 @@ namespace eosiosystem {
    const uint32_t blocks_per_minute     = 60;
    const uint64_t useconds_per_day      = 24 * 3600 * uint64_t(1000000);
    const uint64_t useconds_per_year     = seconds_per_year*1000000ll;
-   const uint64_t fill_bucket_frequency = blocks_per_minute*1000000ll; /** fill bucket scheduled task frequency(useconds) */
+   const uint64_t fill_bucket_frequency = blocks_per_day*1000000ll; /** fill bucket scheduled task frequency(useconds) */
 
 
    void system_contract::onblock( block_timestamp timestamp, account_name producer ) {
@@ -75,7 +75,8 @@ namespace eosiosystem {
    void system_contract::fill_bucket_schedule( ) {
 
       eosio_assert( _gstate.total_activated_stake >= min_activated_stake,
-               "cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
+                    "cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
+
       auto ct = current_time();
       const auto usecs_since_last_fill = ct - _gstate.last_pervote_bucket_fill;
 

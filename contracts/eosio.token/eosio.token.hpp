@@ -30,8 +30,7 @@ namespace eosio {
                         account_name to,
                         asset        quantity,
                         string       memo );
-
-         void consume( account_name from, asset quantity, string memo );
+      
       
          inline asset get_supply( symbol_name sym )const;
          

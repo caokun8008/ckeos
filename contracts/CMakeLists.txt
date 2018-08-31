@@ -17,7 +17,6 @@ add_subdirectory(identity)
 add_subdirectory(stltest)
 add_subdirectory(exchange)
 add_subdirectory(test.inline)
-add_subdirectory(consumemem)
 
 #add_subdirectory(bancor)
 add_subdirectory(hello)
@@ -35,6 +34,7 @@ add_subdirectory(noop)
 add_subdirectory(dice)
 add_subdirectory(tic_tac_toe)
 add_subdirectory(payloadless)
+add_subdirectory(integration_test)
 
 
 file(GLOB SKELETONS RELATIVE ${CMAKE_SOURCE_DIR}/contracts "skeleton/*")
