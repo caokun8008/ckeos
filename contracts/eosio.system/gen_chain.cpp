@@ -101,7 +101,7 @@ void system_contract::genchain( account_name issuer, uint64_t id, string serial_
     auto existing = chainstable.find( issuer );
     eosio_assert( existing == chainstable.end(), "chain has been generated for the account" );
     eosio_assert( (id > 200000) && (id < 999999), "invalid bid id" );
-    eosio_assert( serial_number.size() == 10, "invalid serial number" );
+    eosio_assert( serial_number.size() == 64, "invalid serial number" );
     eosio_assert( is_valid_symbol(token_symbl), "invalid token symbol" );
     eosio_assert( check_bid_result(id, issuer) == BID_SUCCESS, "the account fails to bid a chain or the bidding is ongoing" );
 
