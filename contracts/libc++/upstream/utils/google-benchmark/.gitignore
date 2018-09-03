@@ -17,15 +17,14 @@ __pycache__
 # cmake files.
 /Testing
 CMakeCache.txt
-CMakeFiles/
+
 cmake_install.cmake
 
 # makefiles.
 Makefile
 
 # in-source build.
-bin/
-lib/
+
 /test/*_test
 
 # exuberant ctags.

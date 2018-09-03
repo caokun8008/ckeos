@@ -9,7 +9,7 @@
 *.s
 *.dot
 *.abi.hpp
-*.cmake
+
 *.ninja
 \#*
 \.#*
@@ -59,8 +59,6 @@ programs/nodeos/nodeos
 
 scripts/tn_init.sh
 
-tests/plugin_test
-unittests/unit_test
 
 doxygen
 eos.doxygen
