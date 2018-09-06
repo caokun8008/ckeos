@@ -82,7 +82,7 @@ void wallet_api_plugin::plugin_startup() {
        CALL(wallet, wallet_mgr, sign_digest,
             INVOKE_R_R_R(wallet_mgr, sign_digest, chain::digest_type, public_key_type), 201),
        CALL(wallet, wallet_mgr, create,
-            INVOKE_R_R(wallet_mgr, create, std::string), 201),
+            INVOKE_V_R_R(wallet_mgr, create, std::string, std::string), 201),
        CALL(wallet, wallet_mgr, open,
             INVOKE_V_R(wallet_mgr, open, std::string), 200),
        CALL(wallet, wallet_mgr, lock_all,

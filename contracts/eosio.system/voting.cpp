@@ -76,9 +76,9 @@ namespace eosiosystem {
       auto idx = _producers.get_index<N(prototalvote)>();
 
       std::vector< std::pair<eosio::producer_key,uint16_t> > top_producers;
-      top_producers.reserve(21);
+      top_producers.reserve(31);
 
-      for ( auto it = idx.cbegin(); it != idx.cend() && top_producers.size() < 21 && 0 < it->total_votes && it->active(); ++it ) {
+      for ( auto it = idx.cbegin(); it != idx.cend() && top_producers.size() < 31 && 0 < it->total_votes && it->active(); ++it ) {
          top_producers.emplace_back( std::pair<eosio::producer_key,uint16_t>({{it->owner, it->producer_key}, it->location}) );
       }
 
@@ -131,6 +131,8 @@ namespace eosiosystem {
    void system_contract::update_votes( const account_name voter_name, const account_name proxy, const std::vector<account_name>& producers, bool voting ) {
       //validate input
       if ( proxy ) {
+         eosio_assert( 0==1, "voting by proxy is not supported" );
+
          eosio_assert( producers.size() == 0, "cannot vote for producers and proxy at same time" );
          eosio_assert( voter_name != proxy, "cannot proxy to self" );
          require_recipient( proxy );
@@ -234,6 +236,9 @@ namespace eosiosystem {
     *  @pre new state must be different than current state
     */
    void system_contract::regproxy( const account_name proxy, bool isproxy ) {
+      /** Registered proxy does not support */
+      eosio_assert( 0==1, "Registered proxy does not support" );
+
       require_auth( proxy );
 
       auto pitr = _voters.find(proxy);
