@@ -5,6 +5,7 @@
 #include "delegate_bandwidth.cpp"
 #include "voting.cpp"
 #include "exchange_state.cpp"
+#include "gen_chain.cpp"
 
 
 namespace eosiosystem {
@@ -176,6 +177,7 @@ namespace eosiosystem {
 
       userres.emplace( newact, [&]( auto& res ) {
         res.owner = newact;
+        res.is_sys_create = (creator == N(eosio.cname)) ? true : false;
       });
 
       set_resource_limits( newact, 0, 0, 0 );
@@ -195,4 +197,6 @@ EOSIO_ABI( eosiosystem::system_contract,
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
+     // gen_chain.cpp
+     (bidchain)(genchain)(setquota)
 )

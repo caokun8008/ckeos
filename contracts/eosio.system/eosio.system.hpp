@@ -53,13 +53,16 @@ namespace eosiosystem {
       uint16_t             last_producer_schedule_size = 0;
       double               total_producer_vote_weight = 0; /// the sum of all producer votes
       block_timestamp      last_name_close;
+      uint32_t             bid_chain_quota = 3;
+      uint32_t             current_chain_quota = 3;
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE_DERIVED( eosio_global_state, eosio::blockchain_parameters,
                                 (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)
                                 (last_producer_schedule_update)(last_pervote_bucket_fill)
                                 (pervote_bucket)(perblock_bucket)(peruser_vote_bucket)(total_unpaid_blocks)(total_activated_stake)(thresh_activated_stake_time)
-                                (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) )
+                                (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close)
+                                (bid_chain_quota)(current_chain_quota) )
    };
 
    struct producer_info {
@@ -220,6 +223,11 @@ namespace eosiosystem {
          void rmvproducer( account_name producer );
 
          void bidname( account_name bidder, account_name newname, asset bid );
+
+         // functions defined in gen_chain.cpp
+         void bidchain( uint64_t id, account_name bidder, asset price );
+         void genchain( account_name issuer, uint64_t id, std::string serial_number, std::string token_symbl );
+         void setquota( uint32_t quota );
       private:
          void update_elected_producers( block_timestamp timestamp );
          
@@ -238,6 +246,18 @@ namespace eosiosystem {
 
          // defined in voting.cpp
          void propagate_weight_change( const voter_info& voter );
+
+         // defined in gen_chain.cpp
+         bool is_valid_symbol( const std::string& sym ) {
+            if (sym.size() > 7) return false;
+
+            for( size_t i = 0; i < sym.size(); ++i ) {
+               if( !('A' <= sym[i] && sym[i] <= 'Z')  ) return false;
+            }
+            return true;
+         }
+         int check_bid_result( uint64_t id, account_name bidder );
+         void maybe_start_bid_chain();
    };
 
 } /// eosiosystem

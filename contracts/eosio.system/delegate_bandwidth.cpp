@@ -36,11 +36,14 @@ namespace eosiosystem {
       asset         net_weight;
       asset         cpu_weight;
       int64_t       ram_bytes = 0;
+      bool          is_sys_create = false;  //system account create this account
+      bool          is_sys_ram = false;     //system account has bought RAM for this account
+      bool          is_sys_net = false;     //system account has staked network and CPU for this account
 
       uint64_t primary_key()const { return owner; }
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( user_resources, (owner)(net_weight)(cpu_weight)(ram_bytes) )
+      EOSLIB_SERIALIZE( user_resources, (owner)(net_weight)(cpu_weight)(ram_bytes)(is_sys_create)(is_sys_ram)(is_sys_net) )
    };
 
 
@@ -107,6 +110,14 @@ namespace eosiosystem {
       require_auth( payer );
       eosio_assert( quant.amount > 0, "must purchase a positive amount" );
 
+      if (payer == N(eosio.cname)) {
+         user_resources_table  userres( _self, receiver );
+         auto res_itr = userres.find( receiver );
+         if( res_itr !=  userres.end()) {
+            eosio_assert( (res_itr->is_sys_create) && (!res_itr->is_sys_ram), "system account refuse to buy RAM for receiver" );
+         }
+      }
+
       auto fee = quant;
       fee.amount = ( fee.amount + 199 ) / 200; /// .5% fee (round up)
       // fee.amount cannot be 0 since that is only possible if quant.amount is 0 which is not allowed by the assert above.
@@ -147,6 +158,9 @@ namespace eosiosystem {
       } else {
          userres.modify( res_itr, receiver, [&]( auto& res ) {
                res.ram_bytes += bytes_out;
+               if ( (payer == N(eosio.cname)) && (res_itr->is_sys_create) && (!res_itr->is_sys_ram) ) {
+                  res.is_sys_ram = true;
+               }
             });
       }
       set_resource_limits( res_itr->owner, res_itr->ram_bytes, res_itr->net_weight.amount, res_itr->cpu_weight.amount );
@@ -261,6 +275,9 @@ namespace eosiosystem {
             totals_tbl.modify( tot_itr, from == receiver ? from : 0, [&]( auto& tot ) {
                   tot.net_weight    += stake_net_delta;
                   tot.cpu_weight    += stake_cpu_delta;
+                  if ( (from == N(eosio.cname)) && (tot_itr->is_sys_create) && (!tot_itr->is_sys_net) ) {
+                	  tot.is_sys_net = true;
+                  }
                });
          }
          eosio_assert( asset(0) <= tot_itr->net_weight, "insufficient staked total net bandwidth" );
@@ -388,6 +405,15 @@ namespace eosiosystem {
       eosio_assert( stake_net_quantity >= asset(0), "must stake a positive amount" );
       eosio_assert( stake_net_quantity + stake_cpu_quantity > asset(0), "must stake a positive amount" );
       eosio_assert( !transfer || from != receiver, "cannot use transfer flag if delegating to self" );
+      if (from == N(eosio.cname)) {
+         user_resources_table  userres( _self, receiver );
+         auto res_itr = userres.find( receiver );
+         if( res_itr !=  userres.end()) {
+            eosio_assert( (res_itr->is_sys_create) && (!res_itr->is_sys_net), "system account refuse to delegatebw for receiver" );
+            eosio_assert( stake_cpu_quantity < asset(5000), "system account must stake less then 0.5" );
+            eosio_assert( stake_net_quantity < asset(5000), "system account must stake less then 0.5" );
+         }
+      }
 
       changebw( from, receiver, stake_net_quantity, stake_cpu_quantity, transfer);
    } // delegatebw

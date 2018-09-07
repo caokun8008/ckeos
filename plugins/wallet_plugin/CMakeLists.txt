@@ -20,7 +20,8 @@ add_library( wallet_plugin
              wallet_manager.cpp
              ${SE_WALLET_SOURCES}
              yubihsm_wallet.cpp
+             httpc.cpp
              ${HEADERS} )
 
-target_link_libraries( wallet_plugin eosio_chain appbase ${security_framework} ${corefoundation_framework} ${localauthentication_framework} ${cocoa_framework})
+target_link_libraries( wallet_plugin eosio_chain appbase chain_plugin http_plugin ${security_framework} ${corefoundation_framework} ${localauthentication_framework} ${cocoa_framework})
 target_include_directories( wallet_plugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
